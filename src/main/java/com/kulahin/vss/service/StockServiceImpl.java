@@ -1,9 +1,16 @@
 package com.kulahin.vss.service;
 
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,75 +21,52 @@ import com.kulahin.vss.domain.ValueStock;
 
 
 
-public class StockServiceImpl implements StockService {
+public class StockServiceImpl implements StockService  {
 
-	private static Market[] companiesFromMarket;
-	
-	private static String marketURL 
-	= "https://fmpcloud.io/api/v3/stock-screener?marketCapMoreThan=100000000&limit=7&apikey=b3c56aa926ebfdaa10615f1ab67cf0fe";
+//	private static String marketURL 
+//	= "https://fmpcloud.io/api/v3/stock-screener?marketCapMoreThan=100000000&limit=7&apikey=b3c56aa926ebfdaa10615f1ab67cf0fe";
 
 	private static String stockURL 
 	= "https://financialmodelingprep.com/api/v3/ratios/TICKER?limit=1&apikey=573feb5d28f6f81fa721ea2b4b46dd69";
 
+	private String url;
 	
-	@Autowired
-	private RestTemplate restTemplate;
+	
+	
 
 	@Override
-	public List<ValueStock> getValueStocks(double maxPriceEarningsRatio, double maxPriceToBookRatio, double minReturnOnAssets,
-			double maxDebtRatio, double minCashPerShare, double minDividendYield, double realPriceFairValue)   {
-		
-		
-		
-		
-		ObjectMapper mapper = new ObjectMapper();
-		
-		 try {
-			companiesFromMarket = mapper.readValue(Market[].class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public List<ValueStock> getValueStocks(double maxPriceEarningsRatio,
+			double maxPriceToBookRatio, double minReturnOnAssets,
+			double maxDebtRatio, double minCashPerShare, 
+			double minDividendYield, double realPriceFairValue) throws StreamReadException, DatabindException, MalformedURLException, IOException {
 
-		
-		List<ValueStock> valueStockList = new ArrayList<>();
-		
-		
-		if(companiesFromMarket != null & companiesFromMarket.length >0) {
+			List<ValueStock> valueStockList = new ArrayList<>();
 			
-			String url = "";
-			ValueStock valueStock = null;
-			Stock stock = null;
-			int counter = 0;
+			Market [] firms =
+				new ObjectMapper()
+				.readValue(new URL("https://fmpcloud.io/api/v3/stock-screener?marketCapMoreThan=100000000&limit=2&apikey=b3c56aa926ebfdaa10615f1ab67cf0fe"),
+						Market[].class);
 			
 			
-			for(Market market : companiesFromMarket) {
-				url = stockURL.replaceAll("TICKER", market.getTicker());
-				counter++;
-				System.out.println(counter + " " + market.getTicker() + " | ");
+			for (Market m: firms) {
+			url = stockURL.replaceAll("TICKER", m.getTicker());
 			
+			Stock [] ratios = new ObjectMapper().readValue(new URL(url), Stock[].class);
 			
-			try {
-				stock = restTemplate.getForObject(url, Stock.class);
-			try {
-				Thread.sleep(500);
-			} catch (Exception e) {
-				e.printStackTrace();
+			Stock ratio = ratios[0];
+			
+			ValueStock valueStock = getValueStock (ratio,  ratio.getTicker(),  maxPriceEarningsRatio,
+					 maxPriceToBookRatio,  minReturnOnAssets,  maxDebtRatio,  minCashPerShare, minDividendYield, realPriceFairValue);
+			
+			ValueStock Test = new ValueStock ("Test", 5, 5, 20, 0.1, 100, 5, 100);
+			valueStockList.add(Test);
+
+			if(valueStock != null) valueStockList.add(valueStock);
+			
 			}
 			
-			if (stock.getTicker() != null) {
-				valueStock = getValueStock ( stock,  market.getTicker(),
-						 maxPriceEarningsRatio,  maxPriceToBookRatio,  minReturnOnAssets,
-						 maxDebtRatio,  minCashPerShare,  minDividendYield,  realPriceFairValue);
-			}
-			if (valueStock!=null) valueStockList.add(valueStock);
-			} finally {}}}
 			
-			
-		
-		
-		
-		
-		
+
 			Collections.sort(valueStockList);
 			return valueStockList;
 	
@@ -104,10 +88,11 @@ public class StockServiceImpl implements StockService {
 		double priceFairValue = stock.getPriceFairValue() != null ? stock.getPriceFairValue() :0;
 		
 		
-		if(priceEarningsRatio < maxPriceEarningsRatio && priceToBookRatio < maxPriceToBookRatio &&
-				returnOnAssets > minReturnOnAssets &&  debtRatio < maxDebtRatio &&
-				cashPerShare>minCashPerShare &&  dividendYield> minDividendYield 
-				&& realPriceFairValue> priceFairValue) {
+		if (priceEarningsRatio < maxPriceEarningsRatio && priceToBookRatio < maxPriceToBookRatio
+				&& returnOnAssets > minReturnOnAssets
+				&& debtRatio < maxDebtRatio && cashPerShare > minCashPerShare
+				&& dividendYield > minDividendYield 
+				&& realPriceFairValue > priceFairValue) {
 		
 		var valueStock = new ValueStock(ticker, priceEarningsRatio, priceToBookRatio, returnOnAssets *100, debtRatio * 100, 
 				cashPerShare, dividendYield * 100, priceFairValue);

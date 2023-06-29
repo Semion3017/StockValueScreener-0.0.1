@@ -99,6 +99,7 @@ private Boolean isActivelyTrading;
 
 
 @JsonIgnore
+@Builder.Default
 private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 
 
