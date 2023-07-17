@@ -23,8 +23,8 @@ import com.kulahin.vss.domain.ValueStock;
 
 public class StockServiceImpl implements StockService  {
 
-//	private static String marketURL 
-//	= "https://fmpcloud.io/api/v3/stock-screener?marketCapMoreThan=100000000&limit=7&apikey=b3c56aa926ebfdaa10615f1ab67cf0fe";
+	private static String marketURL 
+	= "https://fmpcloud.io/api/v3/stock-screener?marketCapMoreThan=100000000&limit=7&apikey=b3c56aa926ebfdaa10615f1ab67cf0fe";
 
 	private static String stockURL 
 	= "https://financialmodelingprep.com/api/v3/ratios/TICKER?limit=1&apikey=573feb5d28f6f81fa721ea2b4b46dd69";
@@ -44,7 +44,7 @@ public class StockServiceImpl implements StockService  {
 			
 			Market [] firms =
 				new ObjectMapper()
-				.readValue(new URL("https://fmpcloud.io/api/v3/stock-screener?marketCapMoreThan=100000000&limit=2&apikey=b3c56aa926ebfdaa10615f1ab67cf0fe"),
+				.readValue(new URL("https://fmpcloud.io/api/v3/stock-screener?marketCapMoreThan=100000000&limit=7&apikey=b3c56aa926ebfdaa10615f1ab67cf0fe"),
 						Market[].class);
 			
 			
@@ -54,23 +54,14 @@ public class StockServiceImpl implements StockService  {
 			Stock [] ratios = new ObjectMapper().readValue(new URL(url), Stock[].class);
 			
 			Stock ratio = ratios[0];
-			
+
 			ValueStock valueStock = getValueStock (ratio,  ratio.getTicker(),  maxPriceEarningsRatio,
 					 maxPriceToBookRatio,  minReturnOnAssets,  maxDebtRatio,  minCashPerShare, minDividendYield, realPriceFairValue);
-			
-			ValueStock Test = new ValueStock ("Test", 5, 5, 20, 0.1, 100, 5, 100);
-			valueStockList.add(Test);
-
+	
 			if(valueStock != null) valueStockList.add(valueStock);
-			
 			}
-			
-			
-
 			Collections.sort(valueStockList);
 			return valueStockList;
-	
-		
 		}	
 		
 	
