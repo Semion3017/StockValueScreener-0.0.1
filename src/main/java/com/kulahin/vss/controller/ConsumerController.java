@@ -55,27 +55,8 @@ public class ConsumerController {
 
 		 return stockService.getValueStocks(maxPriceEarningsRatio, maxPriceToBookRatio, minReturnOnAssets, maxDebtRatio, minCashPerShare, minDividendYield, realPriceFairValue);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		
 }
 
 
-//List<ValueStock> res = new ArrayList<>();
-//ValueStock ap = new ValueStock("APPL",2.3,5.2,5.1,9.3,8.9,7., 5.3);
-//res.add(0, ap);
+

@@ -27,12 +27,5 @@ public interface StockService {
 			 
 			) throws StreamReadException, DatabindException, MalformedURLException, IOException;
 	
-	
-	
-	
-	
-	
-	
-	
 
 }

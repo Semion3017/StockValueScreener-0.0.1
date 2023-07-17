@@ -42,20 +42,6 @@ public class ValueStock implements Comparable<Object>{
 		ValueStock valueStockObj = (ValueStock) o;
 		return this.getTicker().compareTo(valueStockObj.getTicker());
 	}
-
-
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 }
